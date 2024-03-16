@@ -2,43 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Joke from "./Joke";
 import "./JokeList.css";
+import useGetJokes from "./hooks/useGetJokes";
 
 /** List of jokes. */
 
 const JokeList = () => {
-  const numJokesToGet = 5;
-  const [ jokes, setJokes ] = useState([]);
   const [ isLoading, setLoading ] = useState(true)
 
-  async function getJokes() {
-    try {
-      // load jokes one at a time, adding not-yet-seen jokes
-      let newJokes = [];
-      let seenJokes = new Set();
-
-      while (newJokes.length < numJokesToGet) {
-        let res = await axios.get("https://icanhazdadjoke.com", {
-          headers: { Accept: "application/json" }
-        });
-        let { ...joke } = res.data;
-
-        if (!seenJokes.has(joke.id)) {
-          seenJokes.add(joke.id);
-          newJokes.push({ ...joke, votes: 0 });
-        } else {
-          console.log("duplicate found!");
-        }
-      }
-      setJokes(newJokes);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(function generateJokes() {
-    getJokes();
-  }, [])
+  const [ jokes, getJokes, setJokes ] = useGetJokes(setLoading);
 
   const generateNewJokes = () => {
     setLoading(true);
@@ -82,4 +53,5 @@ const JokeList = () => {
     </div>
   );
 };
+
 export default JokeList;
